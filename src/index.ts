@@ -29,13 +29,16 @@ createConnection(options)
         ])
     )
     .then((answers: any) => {
-        answers = answers as string[]
-        switch (answers) {
+        switch (answers.command) {
             case downloadNewInfo:
                 const oraInst = ora('Loading unicorns').start();
                 downloadNewInfoFn()
                     .then(() => {
-                        oraInst.stop()
+                        oraInst.stop();
+                    })
+                    .catch((e) => {
+                        console.error(e);
+                        oraInst.stop();
                     })
                 break;
             case exportToCSV:

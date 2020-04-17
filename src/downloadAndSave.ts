@@ -1,6 +1,6 @@
 import {createQueryBuilder, ObjectLiteral} from "typeorm";
 import {Affiliation, Author, Work} from "./entities";
-import axios from "axios";
+import fetch from "node-fetch";
 import { v3 as uuidv3 } from 'uuid';
 import dayjs from 'dayjs';
 
@@ -61,8 +61,14 @@ const insertAuthors = (authors: FilledAuthor[]) => {
 }
 
 export const downloadNewInfoFn = async () => {
-    const {data} = await axios.get<APIReply>(APIRef);
-    const {message: {items}} = data;
+    const res = await fetch(APIRef, {
+        headers: {
+            "User-Agent": "PostmanRuntime/7.24.1",
+            'user-agent': "PostmanRuntime/7.24.1"
+        },
+    });
+    const json = await res.json() as APIReply;
+    const {message: {items}} = json;
 
     const works = await Promise.all(items.map(async item => {
         const authors = await Promise.all(item.author.map(async author =>
