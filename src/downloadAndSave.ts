@@ -2,10 +2,11 @@ import {createQueryBuilder, ObjectLiteral} from "typeorm";
 import {Affiliation, Author, Work} from "./entities";
 import axios from "axios";
 import { v3 as uuidv3 } from 'uuid';
+import dayjs from 'dayjs';
 
+const lastYear = dayjs().subtract(1, 'year').format('YYYY-MM-DD');
 
-
-const APIRef = `http://api.crossref.org/works?query=animal&filter=from-pub-date:2019-04-17&select=DOI,title,author,created`;
+const APIRef = `http://api.crossref.org/works?query=animal&filter=from-pub-date:${lastYear}&select=DOI,title,author,created`;
 const UUIDConst = `3bbcee75-cecc-5b56-8031-b6641c1ed1f1`;
 
 interface ApiAffiliation {
