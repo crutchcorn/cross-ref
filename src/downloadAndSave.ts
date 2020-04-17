@@ -60,7 +60,7 @@ const insertAuthors = (authors: FilledAuthor[]) => {
         .execute();
 }
 
-const downloadNewInfoFn = async () => {
+export const downloadNewInfoFn = async () => {
     const {data} = await axios.get<APIReply>(APIRef);
     const {message: {items}} = data;
 

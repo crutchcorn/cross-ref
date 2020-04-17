@@ -16,6 +16,7 @@
     "axios": "^0.19.2",
     "dayjs": "^1.8.24",
     "inquirer": "^7.1.0",
+    "ora": "^4.0.3",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.1.1",
     "typeorm": "^0.2.24",

@@ -2,6 +2,8 @@ import "reflect-metadata";
 import inquirer from 'inquirer';
 import {ConnectionOptions, createConnection} from "typeorm"
 import {Affiliation, Author, Work} from "./entities";
+import ora from "ora";
+import {downloadNewInfoFn} from "./downloadAndSave";
 
 const options: ConnectionOptions = {
     type: "sqlite",
@@ -30,7 +32,12 @@ createConnection(options)
         answers = answers as string[]
         switch (answers) {
             case downloadNewInfo:
-                return;
+                const oraInst = ora('Loading unicorns').start();
+                downloadNewInfoFn()
+                    .then(() => {
+                        oraInst.stop()
+                    })
+                break;
             case exportToCSV:
             default:
                 return;
