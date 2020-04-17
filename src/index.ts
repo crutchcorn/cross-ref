@@ -1,21 +1,13 @@
 import "reflect-metadata";
 import inquirer from 'inquirer';
-import {ConnectionOptions, createConnection} from "typeorm"
-import {Affiliation, Author, Work} from "./entities";
+import {createConnection} from "typeorm"
 import ora from "ora";
 import {downloadNewInfoFn} from "./downloadAndSave";
-
-const options: ConnectionOptions = {
-    type: "sqlite",
-    database: `${__dirname}/data.sqlite`,
-    entities: [Affiliation, Author, Work],
-    logging: true
-}
 
 const downloadNewInfo = 'Download new information';
 const exportToCSV = 'Export to CSV'
 
-createConnection(options)
+createConnection()
     .then(() => inquirer.prompt([
             {
                 type: 'list',
