@@ -1,10 +1,11 @@
 import {Affiliation} from "./affiliation";
-import {BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinTable, ManyToMany, PrimaryColumn} from "typeorm";
 
 @Entity()
 export class Author extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn()
+    // A v3 UUID
+    uuid: string;
 
     @Column()
     given: string;

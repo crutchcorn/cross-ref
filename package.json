@@ -17,11 +17,13 @@
     "inquirer": "^7.1.0",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^4.1.1",
-    "typeorm": "^0.2.24"
+    "typeorm": "^0.2.24",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@types/inquirer": "^6.5.0",
     "@types/node": "^13.11.1",
+    "@types/uuid": "^7.0.2",
     "typescript": "^3.8.3"
   }
 }
