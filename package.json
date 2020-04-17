@@ -1,0 +1,27 @@
+{
+  "name": "cross-ref",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "createDb": "node ./create-db.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "inquirer": "^7.1.0",
+    "reflect-metadata": "^0.1.13",
+    "sqlite3": "^4.1.1",
+    "typeorm": "^0.2.24"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^6.5.0",
+    "@types/node": "^13.11.1",
+    "typescript": "^3.8.3"
+  }
+}
