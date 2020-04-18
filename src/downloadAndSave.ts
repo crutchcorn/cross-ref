@@ -71,11 +71,13 @@ export const downloadNewInfoFn = async () => {
     const {message: {items}} = json;
 
     const works = await Promise.all(items.map(async item => {
-        const authors = await Promise.all(item.author.map(async author =>
+        const authors = item.author ? await Promise.all(item.author.map(async author =>
             {
-                const affiliations = await insertAffiliations(author.affiliation);
+                const affiliations = author.affiliation?.length ? await insertAffiliations(author.affiliation) : {identifiers: []};
                 // This is to ensure that we can simply "Insert many" without having to worry about collision
                 const uuid = uuidv3(JSON.stringify(author), UUIDConst)
+
+                console.log(uuid);
 
                 return {
                     ...author,
@@ -83,9 +85,9 @@ export const downloadNewInfoFn = async () => {
                     uuid
                 }
             }
-        ))
+        )) : []
 
-        const {identifiers: authorIds} = await insertAuthors(authors)
+        const {identifiers: authorIds} = authors?.length ?  await insertAuthors(authors) : {identifiers: []}
 
         const created = new Date(item.created.timestamp);
 
