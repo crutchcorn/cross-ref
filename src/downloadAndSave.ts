@@ -1,7 +1,7 @@
-import {createQueryBuilder, ObjectLiteral} from "typeorm";
+import {createQueryBuilder, getManager, ObjectLiteral} from "typeorm";
 import {Affiliation, Author, Work} from "./entities";
 import fetch from "node-fetch";
-import { v3 as uuidv3 } from 'uuid';
+import {v3 as uuidv3} from 'uuid';
 import dayjs from 'dayjs';
 
 const lastYear = dayjs().subtract(1, 'year').format('YYYY-MM-DD');
@@ -41,23 +41,37 @@ interface APIReply {
     }
 }
 
-const insertAffiliations = (affiliations: ApiAffiliation[]) => {
-    return createQueryBuilder()
-        .insert()
-        .into(Affiliation)
-        .values(affiliations)
-        .onConflict(`("name") DO NOTHING`)
-        .execute();
+const insertAffiliations = async (affiliations: ApiAffiliation[]) => {
+    if (!affiliations.length) return [];
+    return await Promise.all(affiliations.map(async affiliation => {
+        let affil = new Affiliation();
+        affil.name = affiliation.name
+        try {
+            await affil.save();
+        } catch (e) {
+            affil = (await getManager().findOne(Affiliation, affiliation.name))!;
+        }
+        return affil;
+    }))
 }
 
-type FilledAuthor = Omit<ApiAuthor, 'affiliation'> & {affiliation: ObjectLiteral[]};
-const insertAuthors = (authors: FilledAuthor[]) => {
-    return createQueryBuilder()
-        .insert()
-        .into(Author)
-        .values(authors)
-        .onConflict(`("uuid") DO NOTHING`)
-        .execute();
+type FilledAuthor = Omit<ApiAuthor, 'affiliation'> & { uuid: string, affiliation: Affiliation[] };
+const insertAuthors = async (authors: FilledAuthor[]) => {
+    if (!authors.length) return [];
+    return await Promise.all(authors.map(async author => {
+        let auth = new Author();
+        auth.uuid = author.uuid;
+        auth.given = author.given;
+        auth.family = author.family;
+        auth.sequence = author.sequence;
+        auth.affiliation = author.affiliation;
+        try {
+            await auth.save();
+        } catch (e) {
+            auth = (await getManager().findOne(Author, author.uuid))!;
+        }
+        return auth;
+    }))
 }
 
 export const downloadNewInfoFn = async () => {
@@ -71,38 +85,35 @@ export const downloadNewInfoFn = async () => {
     const {message: {items}} = json;
 
     const works = await Promise.all(items.map(async item => {
-        const authors = item.author ? await Promise.all(item.author.map(async author =>
-            {
-                const affiliations = author.affiliation?.length ? await insertAffiliations(author.affiliation) : {identifiers: []};
+        const authors = item.author ? await Promise.all(item.author.map(async author => {
+                const affiliations = await insertAffiliations(author.affiliation);
+
                 // This is to ensure that we can simply "Insert many" without having to worry about collision
                 const uuid = uuidv3(JSON.stringify(author), UUIDConst)
 
-                console.log(uuid);
-
                 return {
                     ...author,
-                    affiliation: affiliations.identifiers,
+                    affiliation: affiliations,
                     uuid
                 }
             }
         )) : []
 
-        const {identifiers: authorIds} = authors?.length ?  await insertAuthors(authors) : {identifiers: []}
+        const authorIds = await insertAuthors(authors) as any[];
 
         const created = new Date(item.created.timestamp);
 
-        return {
-            doi: item.DOI,
-            title: item.title,
-            created,
-            author: authorIds
-        }
+        const work = new Work();
+
+        work.doi = item.DOI;
+        work.title = item.title;
+        work.created = created;
+        work.author = authorIds;
+
+        return work;
     }))
 
-    await createQueryBuilder()
-        .insert()
-        .into(Work)
-        .values(works)
-        .onConflict(`("doi") DO NOTHING`)
-        .execute();
+    for (const work of works) {
+        work.save();
+    }
 }
