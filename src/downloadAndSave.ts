@@ -114,6 +114,8 @@ export const downloadNewInfoFn = async () => {
     }))
 
     for (const work of works) {
-        work.save();
+        try {
+            work.save();
+        } catch (e) {}
     }
 }

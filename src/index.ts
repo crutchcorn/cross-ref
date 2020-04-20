@@ -3,6 +3,7 @@ import inquirer from 'inquirer';
 import {createConnection} from "typeorm"
 import ora from "ora";
 import {downloadNewInfoFn} from "./downloadAndSave";
+import {exportToCSVFn} from "./exportToCSV";
 
 const downloadNewInfo = 'Download new information';
 const exportToCSV = 'Export to CSV'
@@ -35,6 +36,7 @@ createConnection()
                 break;
             case exportToCSV:
             default:
+                exportToCSVFn();
                 return;
         }
     })
